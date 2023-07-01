@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CreatePaymentTypeRequest {
+public class UpdatePaymentTypeRequest {
+    private Long id;
     private String typeName;
 }

@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CreatePaymentRequest {
+public class UpdatePaymentRequest {
+    private Long id;
     private Double amount;
     private Long paymentTypeId;
     private Long date;
