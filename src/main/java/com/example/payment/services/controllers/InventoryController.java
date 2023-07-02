@@ -4,15 +4,14 @@ import com.example.payment.services.entities.Inventory;
 import com.example.payment.services.helper.ResponseHelper;
 import com.example.payment.services.models.Response;
 import com.example.payment.services.models.service.inventory.CreateInventoryRequest;
+import com.example.payment.services.models.service.inventory.GetListInventoryRequest;
 import com.example.payment.services.models.service.inventory.UpdateInventoryRequest;
-import com.example.payment.services.models.web.requests.PagingRequest;
 import com.example.payment.services.models.web.requests.inventory.PostInventoryWebRequest;
 import com.example.payment.services.services.InventoryService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/inventory", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -43,9 +42,17 @@ public class InventoryController {
                 .map(ResponseHelper::ok);
     }
 
-    @GetMapping
-    public Response<List<Inventory>> getPaymentList(@RequestParam PagingRequest pagingRequest){
-        return ResponseHelper.ok(null);
+    //@RequestParam(required = false) String itemName, @RequestParam PagingRequest pagingRequest
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Inventory> getPaymentList(@RequestParam(value = "page", defaultValue = "1") Integer page
+                                            , @RequestParam(value = "pageSize", defaultValue = "10") Integer size
+                                            , @RequestParam(value = "itemName", defaultValue = "") String itemName){
+        GetListInventoryRequest request = GetListInventoryRequest.builder()
+                .itemName(itemName)
+                .page(page-1)
+                .pageSize(size)
+                .build();
+        return inventoryService.getInventoryList(request);
     }
 
     @PutMapping(path = "{id}")

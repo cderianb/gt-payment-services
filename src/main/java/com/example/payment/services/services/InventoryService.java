@@ -5,6 +5,7 @@ import com.example.payment.services.models.service.inventory.CreateInventoryRequ
 import com.example.payment.services.models.service.inventory.GetListInventoryRequest;
 import com.example.payment.services.models.service.inventory.UpdateInventoryRequest;
 import com.example.payment.services.repositories.InventoryRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -49,6 +50,6 @@ public class InventoryService {
     }
 
     public Flux<Inventory> getInventoryList(GetListInventoryRequest request){
-        return Flux.empty();
+        return inventoryRepository.findAllByItemNameContaining(request.getItemName(), PageRequest.of(request.getPage(), request.getPageSize()));
     }
 }

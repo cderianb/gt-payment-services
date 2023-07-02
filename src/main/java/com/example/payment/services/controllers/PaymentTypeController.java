@@ -5,20 +5,11 @@ import com.example.payment.services.helper.ResponseHelper;
 import com.example.payment.services.models.Response;
 import com.example.payment.services.models.service.paymentType.CreatePaymentTypeRequest;
 import com.example.payment.services.models.service.paymentType.UpdatePaymentTypeRequest;
-import com.example.payment.services.models.web.requests.PagingRequest;
 import com.example.payment.services.models.web.requests.paymentType.PostPaymentTypeWebRequest;
 import com.example.payment.services.models.web.requests.paymentType.UpdatePaymentTypeWebRequest;
 import com.example.payment.services.services.PaymentTypeService;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -48,7 +39,7 @@ public class PaymentTypeController {
     }
 
     @GetMapping
-    public Response<List<PaymentType>> getPaymentList(@RequestParam PagingRequest pagingRequest){
+    public Response<List<PaymentType>> getPaymentList(){
         return ResponseHelper.ok(null);
     }
 

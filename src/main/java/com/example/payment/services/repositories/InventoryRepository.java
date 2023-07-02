@@ -9,6 +9,5 @@ import reactor.core.publisher.Mono;
 
 public interface InventoryRepository extends ReactiveCrudRepository<Inventory, Long> {
     Mono<Inventory> findInventoryById(Long id);
-
-    Flux<Inventory> findAllByItemName(String itemName, Pageable pageable);
+    Flux<Inventory> findAllByItemNameContaining(String itemName, Pageable pageabl);
 }
