@@ -1,4 +1,4 @@
-package com.example.payment.services.models.web.requests.PaymentType;
+package com.example.payment.services.models.web.requests.paymentType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class UpdatePaymentTypeWebRequest {
+public class PostPaymentTypeWebRequest {
     private String typeName;
 }

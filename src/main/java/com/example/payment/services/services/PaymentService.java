@@ -1,50 +1,49 @@
 package com.example.payment.services.services;
 
 import com.example.payment.services.entities.Payment;
-import com.example.payment.services.entities.PaymentType;
 import com.example.payment.services.models.service.payment.CreatePaymentRequest;
 import com.example.payment.services.models.service.payment.UpdatePaymentRequest;
 import com.example.payment.services.repositories.PaymentRepository;
-import com.example.payment.services.repositories.PaymentTypeRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final PaymentTypeRepository paymentTypeRepository;
-
-    public PaymentService(PaymentRepository paymentRepository, PaymentTypeRepository paymentTypeRepository){
+    public PaymentService(PaymentRepository paymentRepository){
         this.paymentRepository = paymentRepository;
-        this.paymentTypeRepository = paymentTypeRepository;
     }
 
-    public Payment createPayment(CreatePaymentRequest request){
-        PaymentType paymentType = paymentTypeRepository.getReferenceById(request.getPaymentTypeId().intValue());
+    public Mono<Payment> createPayment(CreatePaymentRequest request){
         Payment payment = Payment.builder()
                 .amount(request.getAmount())
-                .paymentType(paymentType)
+                .paymentTypeId(request.getPaymentTypeId())
                 .date(request.getDate())
                 .customerId(request.getCustomerId())
                 .build();
         return paymentRepository.save(payment);
     }
 
-    public Payment getPaymentById(Long id){
-        return paymentRepository.findById(id);
+    public Mono<Payment> getPaymentById(Long id){
+        return paymentRepository.findPaymentById(id);
     }
 
-    public Payment updatePayment(UpdatePaymentRequest request){
-        PaymentType paymentType = paymentTypeRepository.getReferenceById(request.getPaymentTypeId().intValue());
-        Payment payment = paymentRepository.findById(request.getId());
+    public Mono<Payment> updatePayment(UpdatePaymentRequest request){
+        return paymentRepository.findPaymentById(request.getId())
+                    .map(payment -> updatePayment(payment, request))
+                    .flatMap(paymentRepository::save);
+    }
+
+    public Mono<Void> deletePayment(Long id){
+        return paymentRepository.deleteById(id);
+    }
+
+    private Payment updatePayment(Payment payment, UpdatePaymentRequest request){
         payment.setAmount(request.getAmount());
+        payment.setPaymentTypeId(request.getPaymentTypeId());
         payment.setDate(request.getDate());
         payment.setCustomerId(request.getCustomerId());
-        payment.setPaymentType(paymentType);
 
-        return paymentRepository.save(payment);
-    }
-
-    public void deletePayment(Long id){
-        paymentRepository.deleteById(id.intValue());
+        return payment;
     }
 }

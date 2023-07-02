@@ -6,8 +6,8 @@ import com.example.payment.services.models.Response;
 import com.example.payment.services.models.service.paymentType.CreatePaymentTypeRequest;
 import com.example.payment.services.models.service.paymentType.UpdatePaymentTypeRequest;
 import com.example.payment.services.models.web.requests.PagingRequest;
-import com.example.payment.services.models.web.requests.PaymentType.PostPaymentTypeWebRequest;
-import com.example.payment.services.models.web.requests.PaymentType.UpdatePaymentTypeWebRequest;
+import com.example.payment.services.models.web.requests.paymentType.PostPaymentTypeWebRequest;
+import com.example.payment.services.models.web.requests.paymentType.UpdatePaymentTypeWebRequest;
 import com.example.payment.services.services.PaymentTypeService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -30,20 +31,20 @@ public class PaymentTypeController {
         this.paymentTypeService = paymentTypeService;
     }
     @PostMapping
-    public Response<PaymentType> postPaymentType(@RequestBody PostPaymentTypeWebRequest webRequest)  {
+    public Mono<Response<PaymentType>> postPaymentType(@RequestBody PostPaymentTypeWebRequest webRequest)  {
         //TODO: validation for existing type
         CreatePaymentTypeRequest request = CreatePaymentTypeRequest.builder()
                 .typeName(webRequest.getTypeName())
                 .build();
-        PaymentType paymentType = paymentTypeService.createPaymentType(request);
-        return ResponseHelper.ok(paymentType);
+        return paymentTypeService.createPaymentType(request)
+                .map(ResponseHelper::ok);
     }
 
     @GetMapping(path = "{id}")
-    public Response<PaymentType> getPaymentTypeById(@PathVariable Long id){
+    public Mono<Response<PaymentType>> getPaymentTypeById(@PathVariable Long id){
         //TODO: validation for existing type
-        PaymentType paymentType = paymentTypeService.getPaymentTypeById(id);
-        return ResponseHelper.ok(paymentType);
+        return paymentTypeService.getPaymentTypeById(id)
+                .map(ResponseHelper::ok);
     }
 
     @GetMapping
@@ -52,21 +53,21 @@ public class PaymentTypeController {
     }
 
     @PutMapping(path = "{id}")
-    public Response<PaymentType> updatePayment(@PathVariable Long id, @RequestBody UpdatePaymentTypeWebRequest webRequest){
+    public Mono<Response<PaymentType>> updatePayment(@PathVariable Long id, @RequestBody UpdatePaymentTypeWebRequest webRequest){
         //TODO: validation for existing type
         //TODO: validation type not in use
         UpdatePaymentTypeRequest request = UpdatePaymentTypeRequest.builder()
                 .id(id)
                 .typeName(webRequest.getTypeName())
                 .build();
-        PaymentType paymentType = paymentTypeService.updatePaymentType(request);
-        return ResponseHelper.ok(paymentType);
+        return paymentTypeService.updatePaymentType(request)
+                .map(ResponseHelper::ok);
     }
 
     @DeleteMapping(path = "{id}")
-    public Response<Long> deletePayment(@PathVariable Long id){
+    public Mono<Response<Long>> deletePayment(@PathVariable Long id){
         //TODO: validation for existing type
-        paymentTypeService.deletePaymentType(id);
-        return ResponseHelper.ok(id);
+        return paymentTypeService.deletePaymentType(id)
+                .thenReturn(ResponseHelper.ok(id));
     }
 }

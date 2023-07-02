@@ -1,4 +1,4 @@
-package com.example.payment.services.models.web.requests.Payment;
+package com.example.payment.services.models.web.requests.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class UpdatePaymentWebRequest {
+public class PostPaymentWebRequest {
     private Double amount;
     private Long paymentTypeId;
     private Long date;

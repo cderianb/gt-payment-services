@@ -15,23 +15,20 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "payments")
-public class Payment {
+@Table(name = "inventories")
+public class Inventory {
     @Id
-    @Column(value = "payment_id")
+    @Column(value = "item_id")
     private Long id;
 
-    @Column(value = "amount")
-    private Double amount;
+    @Column(value = "item_name")
+    private String itemName;
 
-    @Column(value = "payment_type_id")
-    private Long paymentTypeId;
+    @Column(value = "quantity")
+    private Integer quantity;
 
-    @Column(value = "date")
-    private Long date;
-
-    @Column(value = "customer_id")
-    private Long customerId;
+    @Column(value = "price")
+    private Double price;
 
     @Version
     private Long version;

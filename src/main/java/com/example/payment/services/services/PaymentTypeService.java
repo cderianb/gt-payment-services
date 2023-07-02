@@ -5,6 +5,7 @@ import com.example.payment.services.models.service.paymentType.CreatePaymentType
 import com.example.payment.services.models.service.paymentType.UpdatePaymentTypeRequest;
 import com.example.payment.services.repositories.PaymentTypeRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 public class PaymentTypeService {
@@ -14,24 +15,29 @@ public class PaymentTypeService {
         this.paymentTypeRepository = paymentTypeRepository;
     }
 
-    public PaymentType createPaymentType(CreatePaymentTypeRequest request){
+    public Mono<PaymentType> createPaymentType(CreatePaymentTypeRequest request){
         PaymentType paymentType = PaymentType.builder()
                 .typeName(request.getTypeName())
                 .build();
         return paymentTypeRepository.save(paymentType);
     }
 
-    public PaymentType getPaymentTypeById(Long id){
-        return paymentTypeRepository.findById(id);
+    public Mono<PaymentType> getPaymentTypeById(Long id){
+        return paymentTypeRepository.findPaymentTypeById(id);
     }
 
-    public PaymentType updatePaymentType(UpdatePaymentTypeRequest request){
-        PaymentType paymentType = paymentTypeRepository.findById(request.getId());
+    public Mono<PaymentType> updatePaymentType(UpdatePaymentTypeRequest request){
+        return paymentTypeRepository.findPaymentTypeById(request.getId())
+                .map(paymentType -> updateValue(paymentType, request))
+                .flatMap(paymentTypeRepository::save);
+    }
+
+    public Mono<Void> deletePaymentType(Long id){
+        return paymentTypeRepository.deleteById(id);
+    }
+
+    private PaymentType updateValue(PaymentType paymentType, UpdatePaymentTypeRequest request){
         paymentType.setTypeName(request.getTypeName());
-        return paymentTypeRepository.save(paymentType);
-    }
-
-    public void deletePaymentType(Long id){
-        paymentTypeRepository.deleteById(id.intValue());
+        return paymentType;
     }
 }
