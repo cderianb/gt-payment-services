@@ -4,15 +4,15 @@ import com.example.payment.services.entities.PaymentType;
 import com.example.payment.services.helper.ResponseHelper;
 import com.example.payment.services.models.Response;
 import com.example.payment.services.models.service.paymentType.CreatePaymentTypeRequest;
+import com.example.payment.services.models.service.paymentType.GetListPaymentTypeRequest;
 import com.example.payment.services.models.service.paymentType.UpdatePaymentTypeRequest;
 import com.example.payment.services.models.web.requests.paymentType.PostPaymentTypeWebRequest;
 import com.example.payment.services.models.web.requests.paymentType.UpdatePaymentTypeWebRequest;
 import com.example.payment.services.services.PaymentTypeService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/payment-type", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,9 +38,16 @@ public class PaymentTypeController {
                 .map(ResponseHelper::ok);
     }
 
-    @GetMapping
-    public Response<List<PaymentType>> getPaymentList(){
-        return ResponseHelper.ok(null);
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<PaymentType> getPaymentTypeList(@RequestParam(value = "page", defaultValue = "1") Integer page
+                                                            , @RequestParam(value = "pageSize", defaultValue = "10") Integer size
+                                                            , @RequestParam(value = "typeName", defaultValue = "") String typeName){
+        GetListPaymentTypeRequest request = GetListPaymentTypeRequest.builder()
+                .pageSize(size)
+                .page(page-1)
+                .typeName(typeName)
+                .build();
+        return paymentTypeService.getPaymentList(request);
     }
 
     @PutMapping(path = "{id}")

@@ -2,9 +2,12 @@ package com.example.payment.services.services;
 
 import com.example.payment.services.entities.Payment;
 import com.example.payment.services.models.service.payment.CreatePaymentRequest;
+import com.example.payment.services.models.service.payment.GetListPaymentRequest;
 import com.example.payment.services.models.service.payment.UpdatePaymentRequest;
 import com.example.payment.services.repositories.PaymentRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -38,6 +41,10 @@ public class PaymentService {
         return paymentRepository.deleteById(id);
     }
 
+    public Flux<Payment> getPaymentList(GetListPaymentRequest request){
+        return paymentRepository.findAllByFilter(
+                "%"+request.getTypeName()+"%", request.getCustomerId(), PageRequest.of(request.getPage(), request.getPageSize()));
+    }
     private Payment updatePayment(Payment payment, UpdatePaymentRequest request){
         payment.setAmount(request.getAmount());
         payment.setPaymentTypeId(request.getPaymentTypeId());

@@ -4,15 +4,15 @@ import com.example.payment.services.entities.Payment;
 import com.example.payment.services.helper.ResponseHelper;
 import com.example.payment.services.models.Response;
 import com.example.payment.services.models.service.payment.CreatePaymentRequest;
+import com.example.payment.services.models.service.payment.GetListPaymentRequest;
 import com.example.payment.services.models.service.payment.UpdatePaymentRequest;
 import com.example.payment.services.models.web.requests.payment.PostPaymentWebRequest;
 import com.example.payment.services.models.web.requests.payment.UpdatePaymentWebRequest;
 import com.example.payment.services.services.PaymentService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/payment", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,9 +44,18 @@ public class PaymentController {
                 .map(ResponseHelper::ok);
     }
 
-    @GetMapping
-    public Response<List<Payment>> getPaymentList(){
-        return ResponseHelper.ok(null);
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Payment> getPaymentList(@RequestParam(value = "page", defaultValue = "1") Integer page
+                                                    , @RequestParam(value = "pageSize", defaultValue = "10") Integer size
+                                                    , @RequestParam(value = "customerId", defaultValue = "") Long customerId
+                                                    , @RequestParam(value = "typeName", defaultValue = "") String typeName){
+        GetListPaymentRequest request = GetListPaymentRequest.builder()
+                .customerId(customerId)
+                .typeName(typeName)
+                .page(page-1)
+                .pageSize(size)
+                .build();
+        return paymentService.getPaymentList(request);
     }
 
     @PutMapping(path = "{id}")

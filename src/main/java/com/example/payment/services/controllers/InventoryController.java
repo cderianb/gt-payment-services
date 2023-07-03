@@ -42,7 +42,6 @@ public class InventoryController {
                 .map(ResponseHelper::ok);
     }
 
-    //@RequestParam(required = false) String itemName, @RequestParam PagingRequest pagingRequest
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Inventory> getPaymentList(@RequestParam(value = "page", defaultValue = "1") Integer page
                                             , @RequestParam(value = "pageSize", defaultValue = "10") Integer size
