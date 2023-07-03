@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class PaymentTypeService {
@@ -19,32 +20,37 @@ public class PaymentTypeService {
     }
 
     public Mono<PaymentType> createPaymentType(CreatePaymentTypeRequest request){
-        PaymentType paymentType = PaymentType.builder()
-                .typeName(request.getTypeName())
-                .build();
-        return paymentTypeRepository.save(paymentType);
+        return Mono.just(PaymentType.builder()
+                            .typeName(request.getTypeName())
+                            .build())
+                .map(paymentTypeRepository::save);
     }
 
     public Mono<PaymentType> getPaymentTypeById(Long id){
-        return paymentTypeRepository.findPaymentTypeById(id);
+        return Mono.just(id)
+                .map(paymentTypeRepository::findPaymentTypeById);
     }
 
     public Mono<PaymentType> updatePaymentType(UpdatePaymentTypeRequest request){
-        return paymentTypeRepository.findPaymentTypeById(request.getId())
-                .map(paymentType -> updateValue(paymentType, request))
-                .flatMap(paymentTypeRepository::save);
+        return Mono.just(request.getId())
+                .map(paymentTypeRepository::findPaymentTypeById)
+                .map(paymentType -> updateValue(paymentType, request));
     }
 
     public Mono<Void> deletePaymentType(Long id){
-        return paymentTypeRepository.deleteById(id);
+        paymentTypeRepository.deleteById(id);
+        return Mono.empty();
     }
 
     public Flux<PaymentType> getPaymentList(GetListPaymentTypeRequest request){
-        return paymentTypeRepository.findAllByTypeNameContaining(request.getTypeName(), PageRequest.of(request.getPage(), request.getPageSize()));
+        return Mono.just(request)
+                .publishOn(Schedulers.boundedElastic())
+                .map(req -> paymentTypeRepository.findAllByTypeNameContaining(req.getTypeName(), PageRequest.of(req.getPage(), req.getPageSize())))
+                .flatMapMany(Flux::fromIterable);
     }
 
     private PaymentType updateValue(PaymentType paymentType, UpdatePaymentTypeRequest request){
         paymentType.setTypeName(request.getTypeName());
-        return paymentType;
+        return paymentTypeRepository.save(paymentType);
     }
 }

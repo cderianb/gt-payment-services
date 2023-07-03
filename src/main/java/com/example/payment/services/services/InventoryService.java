@@ -8,6 +8,7 @@ import com.example.payment.services.repositories.InventoryRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class InventoryService {
@@ -18,38 +19,43 @@ public class InventoryService {
     }
 
     public Mono<Inventory> createInventory(CreateInventoryRequest request){
-        Inventory inventory = Inventory.builder()
-                .itemName(request.getItemName())
-                .quantity(request.getQuantity())
-                .price(request.getPrice())
-                .build();
-        return inventoryRepository.save(inventory);
+        return Mono.just(Inventory.builder()
+                            .itemName(request.getItemName())
+                            .quantity(request.getQuantity())
+                            .price(request.getPrice())
+                            .build())
+                    .map(inventoryRepository::save);
     }
 
     public Mono<Inventory> getInventoryById(Long id){
-        return inventoryRepository.findInventoryById(id);
+        return Mono.just(id)
+                .map(inventoryRepository::findInventoryById);
     }
 
     public Mono<Inventory> updateInventory(UpdateInventoryRequest request){
-        return inventoryRepository.findInventoryById(request.getId())
-                .map(inventory -> updateValue(inventory, request))
-                .flatMap(inventoryRepository::save);
+        return Mono.just(request.getId())
+                .map(inventoryRepository::findInventoryById)
+                .map(inventory -> updateValue(inventory, request));
     }
 
     public Mono<Void> deleteInventory(Long id){
-        return inventoryRepository.deleteById(id);
+        inventoryRepository.deleteById(id);
+        return Mono.empty();
     }
 
     private Inventory updateValue(Inventory inventory, UpdateInventoryRequest request){
         inventory.setItemName(request.getItemName());
         inventory.setQuantity(request.getQuantity());
         inventory.setPrice(request.getPrice());
-
-        return inventory;
+        return inventoryRepository.save(inventory);
     }
 
     public Flux<Inventory> getInventoryList(GetListInventoryRequest request){
-        return inventoryRepository.findAllByFilter(request.getItemName(), request.getMinPrice(), request.getMaxPrice()
-                , request.getPage(), request.getPageSize());
+        return Mono.just(request)
+                .publishOn(Schedulers.boundedElastic())
+                .map(req -> inventoryRepository.findAllByFilter(req.getItemName(), req.getMinPrice(), req.getMaxPrice()
+                , req.getPage(), req.getPageSize()))
+                .doOnEach(a -> System.out.println("processing"))
+                .flatMapMany(Flux::fromIterable);
     }
 }

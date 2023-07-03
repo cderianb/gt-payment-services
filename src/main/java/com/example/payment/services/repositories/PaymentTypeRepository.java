@@ -2,11 +2,11 @@ package com.example.payment.services.repositories;
 
 import com.example.payment.services.entities.PaymentType;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PaymentTypeRepository extends ReactiveCrudRepository<PaymentType, Long> {
-    Mono<PaymentType> findPaymentTypeById(Long id);
-    Flux<PaymentType> findAllByTypeNameContaining(String typename, Pageable pageable);
+import java.util.List;
+
+public interface PaymentTypeRepository extends JpaRepository<PaymentType, Long> {
+    PaymentType findPaymentTypeById(Long id);
+    List<PaymentType> findAllByTypeNameContaining(String typename, Pageable pageable);
 }

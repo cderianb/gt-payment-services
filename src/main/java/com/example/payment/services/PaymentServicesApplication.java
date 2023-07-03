@@ -2,10 +2,12 @@ package com.example.payment.services;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EnableR2dbcAuditing
+@EnableJpaAuditing
+@EnableJpaRepositories
 public class PaymentServicesApplication {
 
 	public static void main(String[] args) {

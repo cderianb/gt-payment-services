@@ -1,43 +1,45 @@
 package com.example.payment.services.entities;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "inventories")
+@Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Inventory {
     @Id
-    @Column(value = "item_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "item_id")
     private Long id;
 
-    @Column(value = "item_name")
+    @Column(name = "item_name")
     private String itemName;
 
-    @Column(value = "quantity")
+    @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(value = "price")
+    @Column(name = "price")
     private Double price;
 
     @Version
     private Long version;
 
     @CreatedDate
-    @Column("created_at")
+    @Column(name = "created_at")
     private Long createdAt;
 
     @LastModifiedDate
-    @Column("updated_at")
+    @Column(name = "updated_at")
     private Long updatedAt;
 }

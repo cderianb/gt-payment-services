@@ -1,46 +1,49 @@
 package com.example.payment.services.entities;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "payments")
+@Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Payment {
     @Id
-    @Column(value = "payment_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id")
     private Long id;
 
-    @Column(value = "amount")
+    @Column(name = "amount")
     private Double amount;
 
-    @Column(value = "payment_type_id")
-    private Long paymentTypeId;
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "payment_type_id", foreignKey = @ForeignKey(name = "fk_payment_payment_type"))
+    private PaymentType paymentType;
 
-    @Column(value = "date")
+    @Column(name = "date")
     private Long date;
 
-    @Column(value = "customer_id")
+    @Column(name = "customer_id")
     private Long customerId;
 
     @Version
     private Long version;
 
     @CreatedDate
-    @Column("created_at")
+    @Column(name = "created_at")
     private Long createdAt;
 
     @LastModifiedDate
-    @Column("updated_at")
+    @Column(name = "updated_at")
     private Long updatedAt;
 }
