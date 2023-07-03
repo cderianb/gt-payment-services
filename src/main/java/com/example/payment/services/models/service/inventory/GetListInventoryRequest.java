@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class GetListInventoryRequest {
     private String itemName;
+    private Double minPrice;
+    private Double maxPrice;
     private Integer page;
     private Integer pageSize;
 }

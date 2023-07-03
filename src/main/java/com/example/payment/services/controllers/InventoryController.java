@@ -45,9 +45,13 @@ public class InventoryController {
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Inventory> getPaymentList(@RequestParam(value = "page", defaultValue = "1") Integer page
                                             , @RequestParam(value = "pageSize", defaultValue = "10") Integer size
-                                            , @RequestParam(value = "itemName", defaultValue = "") String itemName){
+                                            , @RequestParam(value = "itemName", required = false) String itemName
+                                            , @RequestParam(value = "minPrice", required = false) Double minPrice
+                                            , @RequestParam(value = "maxPrice", required = false) Double maxPrice){
         GetListInventoryRequest request = GetListInventoryRequest.builder()
                 .itemName(itemName)
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
                 .page(page-1)
                 .pageSize(size)
                 .build();

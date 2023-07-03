@@ -46,14 +46,22 @@ public class PaymentController {
 
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Payment> getPaymentList(@RequestParam(value = "page", defaultValue = "1") Integer page
-                                                    , @RequestParam(value = "pageSize", defaultValue = "10") Integer size
-                                                    , @RequestParam(value = "customerId", defaultValue = "") Long customerId
-                                                    , @RequestParam(value = "typeName", defaultValue = "") String typeName){
+                                                    , @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+                                                    , @RequestParam(value = "customerId", required = false) Long customerId
+                                                    , @RequestParam(value = "typeName", required = false) String typeName
+                                                    , @RequestParam(value = "minAmount", required = false) Double minAmount
+                                                    , @RequestParam(value = "maxAmount", required = false) Double maxAmount
+                                                    , @RequestParam(value = "minDate", required = false) Long minDate
+                                                    , @RequestParam(value = "maxDate", required = false) Long maxDate){
         GetListPaymentRequest request = GetListPaymentRequest.builder()
                 .customerId(customerId)
                 .typeName(typeName)
+                .minAmount(minAmount)
+                .maxAmount(maxAmount)
+                .minDate(minDate)
+                .maxDate(maxDate)
                 .page(page-1)
-                .pageSize(size)
+                .pageSize(pageSize)
                 .build();
         return paymentService.getPaymentList(request);
     }

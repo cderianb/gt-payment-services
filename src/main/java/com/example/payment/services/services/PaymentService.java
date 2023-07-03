@@ -5,7 +5,6 @@ import com.example.payment.services.models.service.payment.CreatePaymentRequest;
 import com.example.payment.services.models.service.payment.GetListPaymentRequest;
 import com.example.payment.services.models.service.payment.UpdatePaymentRequest;
 import com.example.payment.services.repositories.PaymentRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,7 +42,10 @@ public class PaymentService {
 
     public Flux<Payment> getPaymentList(GetListPaymentRequest request){
         return paymentRepository.findAllByFilter(
-                "%"+request.getTypeName()+"%", request.getCustomerId(), PageRequest.of(request.getPage(), request.getPageSize()));
+                request.getTypeName(), request.getCustomerId(),
+                request.getMinAmount(), request.getMaxAmount(),
+                request.getMinDate(), request.getMaxDate(),
+                request.getPage(), request.getPageSize());
     }
     private Payment updatePayment(Payment payment, UpdatePaymentRequest request){
         payment.setAmount(request.getAmount());
