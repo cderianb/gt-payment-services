@@ -8,4 +8,11 @@ public class ResponseHelper {
                 .data(data)
                 .build();
     }
+
+    public static<T> Response<T> okList(T data){
+        return Response.<T>builder()
+                .result(true)
+                .data(data)
+                .build();
+    }
 }

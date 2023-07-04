@@ -5,10 +5,11 @@ import com.example.payment.services.models.service.inventory.CreateInventoryRequ
 import com.example.payment.services.models.service.inventory.GetListInventoryRequest;
 import com.example.payment.services.models.service.inventory.UpdateInventoryRequest;
 import com.example.payment.services.repositories.InventoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Service
 public class InventoryService {
@@ -18,29 +19,26 @@ public class InventoryService {
         this.inventoryRepository = inventoryRepository;
     }
 
-    public Mono<Inventory> createInventory(CreateInventoryRequest request){
-        return Mono.just(Inventory.builder()
-                            .itemName(request.getItemName())
-                            .quantity(request.getQuantity())
-                            .price(request.getPrice())
-                            .build())
-                    .map(inventoryRepository::save);
+    public Inventory createInventory(CreateInventoryRequest request){
+        Inventory inventory = Inventory.builder()
+                .itemName(request.getItemName())
+                .quantity(request.getQuantity())
+                .price(request.getPrice())
+                .build();
+        return inventoryRepository.save(inventory);
     }
 
-    public Mono<Inventory> getInventoryById(Long id){
-        return Mono.just(id)
-                .map(inventoryRepository::findInventoryById);
+    public Inventory getInventoryById(Long id){
+        return inventoryRepository.findInventoryById(id);
     }
 
-    public Mono<Inventory> updateInventory(UpdateInventoryRequest request){
-        return Mono.just(request.getId())
-                .map(inventoryRepository::findInventoryById)
-                .map(inventory -> updateValue(inventory, request));
+    public Inventory updateInventory(UpdateInventoryRequest request){
+        Inventory inventory = inventoryRepository.findInventoryById(request.getId());
+        return updateValue(inventory, request);
     }
 
-    public Mono<Void> deleteInventory(Long id){
+    public void deleteInventory(Long id){
         inventoryRepository.deleteById(id);
-        return Mono.empty();
     }
 
     private Inventory updateValue(Inventory inventory, UpdateInventoryRequest request){
@@ -50,12 +48,9 @@ public class InventoryService {
         return inventoryRepository.save(inventory);
     }
 
-    public Flux<Inventory> getInventoryList(GetListInventoryRequest request){
-        return Mono.just(request)
-                .publishOn(Schedulers.boundedElastic())
-                .map(req -> inventoryRepository.findAllByFilter(req.getItemName(), req.getMinPrice(), req.getMaxPrice()
-                , req.getPage(), req.getPageSize()))
-                .doOnEach(a -> System.out.println("processing"))
-                .flatMapMany(Flux::fromIterable);
+    public Page<Inventory> getInventoryList(GetListInventoryRequest request){
+        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize(), Sort.by("item_id").ascending());
+        return inventoryRepository.findAllByFilter(request.getItemName(), request.getMinPrice(), request.getMaxPrice()
+                , pageable);
     }
 }

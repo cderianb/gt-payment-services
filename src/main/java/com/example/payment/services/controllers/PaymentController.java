@@ -9,6 +9,7 @@ import com.example.payment.services.models.service.payment.UpdatePaymentRequest;
 import com.example.payment.services.models.web.requests.payment.PostPaymentWebRequest;
 import com.example.payment.services.models.web.requests.payment.UpdatePaymentWebRequest;
 import com.example.payment.services.services.PaymentService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -24,7 +25,7 @@ public class PaymentController {
     }
 
     @PostMapping
-    public Mono<Response<Payment>> postPayment(@RequestBody PostPaymentWebRequest webRequest)  {
+    public Response<Payment> postPayment(@RequestBody PostPaymentWebRequest webRequest)  {
         //TODO: validation for invalid type id
         //Improvement payment type name saved (so if the object is updated, we still have original data)
         CreatePaymentRequest request = CreatePaymentRequest.builder()
@@ -33,19 +34,19 @@ public class PaymentController {
                 .customerId(webRequest.getCustomerId())
                 .date(webRequest.getDate())
                 .build();
-        return paymentService.createPayment(request)
-                .map(ResponseHelper::ok);
+        Payment payment = paymentService.createPayment(request);
+        return ResponseHelper.ok(payment);
     }
 
     @GetMapping(path = "{id}")
-    public Mono<Response<Payment>> getPaymentById(@PathVariable Long id){
+    public Response<Payment> getPaymentById(@PathVariable Long id){
         //TODO: validation for existing type
-        return paymentService.getPaymentById(id)
-                .map(ResponseHelper::ok);
+        Payment payment = paymentService.getPaymentById(id);
+        return ResponseHelper.ok(payment);
     }
 
-    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Payment> getPaymentList(@RequestParam(value = "page", defaultValue = "1") Integer page
+    @GetMapping
+    public Page<Payment> getPaymentList(@RequestParam(value = "page", defaultValue = "1") Integer page
                                                     , @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
                                                     , @RequestParam(value = "customerId", required = false) Long customerId
                                                     , @RequestParam(value = "typeName", required = false) String typeName
@@ -67,7 +68,7 @@ public class PaymentController {
     }
 
     @PutMapping(path = "{id}")
-    public Mono<Response<Payment>> updatePayment(@PathVariable Long id, @RequestBody UpdatePaymentWebRequest webRequest){
+    public Response<Payment> updatePayment(@PathVariable Long id, @RequestBody UpdatePaymentWebRequest webRequest){
         //TODO: validation for existing type
         //TODO: validation for existing payment
         UpdatePaymentRequest request = UpdatePaymentRequest.builder()
@@ -77,13 +78,13 @@ public class PaymentController {
                 .customerId(webRequest.getCustomerId())
                 .paymentTypeId(webRequest.getPaymentTypeId())
                 .build();
-        return paymentService.updatePayment(request)
-                .map(ResponseHelper::ok);
+        Payment payment = paymentService.updatePayment(request);
+        return ResponseHelper.ok(payment);
     }
 
     @DeleteMapping(path = "{id}")
-    public Mono<Response<Long>> deletePayment(@PathVariable Long id){
-        return paymentService.deletePayment(id)
-                .thenReturn(ResponseHelper.ok(id));
+    public Response<Long> deletePayment(@PathVariable Long id){
+        paymentService.deletePayment(id);
+        return ResponseHelper.ok(id);
     }
 }

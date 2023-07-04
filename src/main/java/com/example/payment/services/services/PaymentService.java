@@ -7,6 +7,10 @@ import com.example.payment.services.models.service.payment.GetListPaymentRequest
 import com.example.payment.services.models.service.payment.UpdatePaymentRequest;
 import com.example.payment.services.repositories.PaymentRepository;
 import com.example.payment.services.repositories.PaymentTypeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -21,41 +25,36 @@ public class PaymentService {
         this.paymentTypeRepository = paymentTypeRepository;
     }
 
-    public Mono<Payment> createPayment(CreatePaymentRequest request){
-        return Mono.just(Payment.builder()
-                            .amount(request.getAmount())
-                            .paymentType(getPaymentTypeReference((request.getPaymentTypeId())))
-                            .date(request.getDate())
-                            .customerId(request.getCustomerId())
-                            .build())
-                    .map(paymentRepository::save);
+    public Payment createPayment(CreatePaymentRequest request){
+        Payment payment = Payment.builder()
+                .amount(request.getAmount())
+                .paymentType(getPaymentTypeReference((request.getPaymentTypeId())))
+                .date(request.getDate())
+                .customerId(request.getCustomerId())
+                .build();
+        return paymentRepository.save(payment);
     }
 
-    public Mono<Payment> getPaymentById(Long id){
-        return Mono.just(id)
-                .map(paymentRepository::findPaymentById);
+    public Payment getPaymentById(Long id){
+        return paymentRepository.findPaymentById(id);
     }
 
-    public Mono<Payment> updatePayment(UpdatePaymentRequest request){
-        return Mono.just(request.getId())
-                .map(paymentRepository::findPaymentById)
-                .map(payment -> updatePayment(payment, request));
+    public Payment updatePayment(UpdatePaymentRequest request){
+        Payment payment = paymentRepository.findPaymentById(request.getId());
+        return updatePayment(payment, request);
     }
 
-    public Mono<Void> deletePayment(Long id){
+    public void deletePayment(Long id){
         paymentRepository.deleteById(id);
-        return Mono.empty();
     }
 
-    public Flux<Payment> getPaymentList(GetListPaymentRequest request){
-        return Mono.just(request)
-                .publishOn(Schedulers.boundedElastic())
-                .map(req -> paymentRepository.findAllByFilter(
-                        req.getTypeName(), req.getCustomerId(),
-                        req.getMinAmount(), req.getMaxAmount(),
-                        req.getMinDate(), req.getMaxDate(),
-                        req.getPage(), req.getPageSize()))
-                .flatMapMany(Flux::fromIterable);
+    public Page<Payment> getPaymentList(GetListPaymentRequest request){
+        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize(), Sort.by("payment_id").ascending());
+        return paymentRepository.findAllByFilter(
+                request.getTypeName(), request.getCustomerId(),
+                request.getMinAmount(), request.getMaxAmount(),
+                request.getMinDate(), request.getMaxDate(),
+                Pageable.unpaged());
     }
     private Payment updatePayment(Payment payment, UpdatePaymentRequest request){
         payment.setAmount(request.getAmount());

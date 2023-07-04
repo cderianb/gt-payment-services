@@ -1,13 +1,11 @@
 package com.example.payment.services.entities;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.Struct;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
@@ -26,17 +24,21 @@ public class Payment {
     @Column(name = "amount")
     private Double amount;
 
-    @ManyToOne
-    @JoinColumn(referencedColumnName = "payment_type_id", foreignKey = @ForeignKey(name = "fk_payment_payment_type"))
-    private PaymentType paymentType;
-
     @Column(name = "date")
     private Long date;
 
     @Column(name = "customer_id")
     private Long customerId;
 
+    @ManyToOne
+    @JoinColumn(name = "payment_type_id", foreignKey = @ForeignKey(name = "fk_payment_payment_type"))
+    @JsonProperty("payment_type_id")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    private PaymentType paymentType;
+
     @Version
+    @Column(name = "version")
     private Long version;
 
     @CreatedDate
