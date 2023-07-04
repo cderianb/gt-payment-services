@@ -54,7 +54,7 @@ public class PaymentService {
                 request.getTypeName(), request.getCustomerId(),
                 request.getMinAmount(), request.getMaxAmount(),
                 request.getMinDate(), request.getMaxDate(),
-                Pageable.unpaged());
+                pageable);
     }
     private Payment updatePayment(Payment payment, UpdatePaymentRequest request){
         payment.setAmount(request.getAmount());
