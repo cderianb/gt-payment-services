@@ -1,0 +1,3 @@
+- Create Postgres DB named gt_payment_service
+- change credential properties to your postgres db config
+- Run DB Schema in src/main/resources/schema.sql
